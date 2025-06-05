@@ -2,10 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
 
-from backend.backend.settings import MEDIA_URL
-
 USER_SELF_DATA_MAX_LENGTH = 150
 USER_MAIL_MAX_LENGTH = 255
+USER_NAME_REGEX_VALIDATOR = RegexValidator(regex=r'^[\w.@+-]+$')
 
 
 # Модель пользователя системы на основе встроенной во фреймворке модели User
@@ -14,7 +13,7 @@ class User(AbstractUser):
         max_length=USER_SELF_DATA_MAX_LENGTH,
         unique=True,
         blank=False,
-        validators=[RegexValidator(regex='^[\w.@+-]+\z')],
+        validators=[USER_NAME_REGEX_VALIDATOR],
         verbose_name="Ник",
     )
     email = models.EmailField(
@@ -33,13 +32,10 @@ class User(AbstractUser):
         blank=False,
         verbose_name="Фамилия",
     )
-    password = models.CharField(
-        blank=False,
-    )
     avatar = models.ImageField(
         blank=True,
         verbose_name="Аватар",
-        upload_to=MEDIA_URL,
+        upload_to='avatars/',
     )
 
     class Meta:
