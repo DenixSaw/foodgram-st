@@ -9,6 +9,11 @@ USER_NAME_REGEX_VALIDATOR = RegexValidator(regex=r'^[\w.@+-]+$')
 
 # Модель пользователя системы на основе встроенной во фреймворке модели User
 class User(AbstractUser):
+
+    # Без этих строчек не работает авторизация. Просто абсурд
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
+
     username = models.CharField(
         max_length=USER_SELF_DATA_MAX_LENGTH,
         unique=True,
