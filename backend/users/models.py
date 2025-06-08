@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
+from recipes.models import Recipe
 
 USER_SELF_DATA_MAX_LENGTH = 150
 USER_MAIL_MAX_LENGTH = 255
@@ -40,6 +41,18 @@ class User(AbstractUser):
         blank=True,
         verbose_name="Аватар",
         upload_to='avatars/',
+    )
+    favourites = models.ManyToManyField(
+        Recipe,
+        on_delete=models.SET_NULL,
+        blank=True,
+        verbose_name="Избранное",
+    )
+    cart = models.ManyToManyField(
+        Recipe,
+        on_delete=models.SET_NULL,
+        blank=True,
+        verbose_name="Корзина",
     )
 
     class Meta:
