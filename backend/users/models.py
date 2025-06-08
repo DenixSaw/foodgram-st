@@ -44,15 +44,17 @@ class User(AbstractUser):
     )
     favourites = models.ManyToManyField(
         Recipe,
-        on_delete=models.SET_NULL,
+        # on_delete=models.SET_NULL,
         blank=True,
         verbose_name="Избранное",
+        related_name='favourites',
     )
     cart = models.ManyToManyField(
         Recipe,
-        on_delete=models.SET_NULL,
+        # on_delete=models.SET_NULL,
         blank=True,
         verbose_name="Корзина",
+        related_name="user_cart",
     )
 
     class Meta:

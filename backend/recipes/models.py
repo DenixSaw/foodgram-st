@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
-User = get_user_model()
+# User = get_user_model()
 
 RECIPE_NAME_MAX_LENGTH = 256
 INGREDIENT_NAME_MAX_LENGTH = 128
@@ -30,30 +30,9 @@ class Ingredient(models.Model):
         return f"{self.name}, {self.measurement_unit}"
 
 
-class IngredientRecipe(models.Model):
-    ingredient = models.ForeignKey(
-        Ingredient,
-        on_delete=models.CASCADE,
-        blank=False,
-    )
-    amount = models.PositiveSmallIntegerField(
-        blank=False,
-        validators=[MinValueValidator(1)],
-        default=1,
-        verbose_name="Количество",
-    )
-
-    class Meta:
-        verbose_name = 'Ингредиент в рецепте'
-        verbose_name_plural = 'Ингредиенты в рецепте'
-
-    def __str__(self):
-        return f"{self.ingredient.name}, {self.amount}"
-
-
 class Recipe(models.Model):
     author = models.ForeignKey(
-        User,
+        'users.User',
         on_delete=models.CASCADE,
         blank=False,
         verbose_name="Автор",
@@ -78,11 +57,6 @@ class Recipe(models.Model):
         blank=False,
         verbose_name="Время приготовления",
     )
-    ingredients = models.ManyToManyField(
-        IngredientRecipe,
-        blank=False,
-        verbose_name="Ингредиенты",
-    )
 
     class Meta:
         verbose_name = "Рецепт"
@@ -91,3 +65,30 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class IngredientRecipe(models.Model):
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        blank=False,
+    )
+    amount = models.PositiveSmallIntegerField(
+        blank=False,
+        validators=[MinValueValidator(1)],
+        default=1,
+        verbose_name="Количество",
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        blank=False,
+        null=True,
+    )
+
+    class Meta:
+        verbose_name = 'Ингредиент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецепте'
+
+    def __str__(self):
+        return f"{self.ingredient.name}, {self.amount}"

@@ -1,10 +1,9 @@
-from django.shortcuts import render
 from djoser.views import UserViewSet
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 
 from .serializers import UserSerializer, IngredientSerializer
-from recipes.models import Ingredient
+from recipes.models import Ingredient, Recipe
 
 
 class UserCustomViewSet(UserViewSet):
@@ -24,5 +23,6 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(name__istartswith=name)
         return queryset
 
+
 class RecipeViewSet(viewsets.ModelViewSet):
-    pass
+    queryset = Recipe.objects.all()
