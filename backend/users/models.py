@@ -9,7 +9,6 @@ USER_NAME_REGEX_VALIDATOR = RegexValidator(regex=r'^[\w.@+-]+$')
 
 # Модель пользователя системы на основе встроенной во фреймворке модели User
 class User(AbstractUser):
-
     # Без этих строчек не работает авторизация. Просто абсурд
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
@@ -46,25 +45,32 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+        ordering = ['username']
+
+    def __str__(self):
+        return self.username
 
 
 # Модель подписки
 class Follow(models.Model):
+    # Кто подписан
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='follower'
+        related_name='follower',
     )
+
+    # На кого подписан
     following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='following'
+        related_name='following',
     )
 
     class Meta:
         unique_together = ('user', 'following')
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
 
     def __str__(self):
         return f'{self.user} подписан на {self.following}'
