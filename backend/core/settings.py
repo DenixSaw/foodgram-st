@@ -129,6 +129,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'api.pagination.CommonPaginator',
+    'PAGE_SIZE': 6,
 }
 
 DJOSER = {

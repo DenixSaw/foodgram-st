@@ -2,10 +2,10 @@ from djoser.views import UserViewSet
 from rest_framework import routers
 from django.urls import path, include
 
-from .views import IngredientViewSet
+from .views import IngredientViewSet, UserCustomViewSet
 
 router = routers.DefaultRouter()
-router.register(r'users', UserViewSet, basename='users')
+router.register(r'users', UserCustomViewSet, basename='users')
 router.register('ingredients', IngredientViewSet, basename='ingredients')
 
 urlpatterns = [
