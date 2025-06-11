@@ -203,7 +203,6 @@ class UserRecipeRelationSerializer(serializers.Serializer):
     def validate(self, data, related_name):
         user = data.get("user")
         recipe = data.get("recipe")
-        ingredients = RecipeIngredientSerializer(many=True, source='recipe_ingredients', required=True)
 
         if getattr(user, related_name).filter(recipe__id=recipe.id).exists():
             raise serializers.ValidationError(

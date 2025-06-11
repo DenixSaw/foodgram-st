@@ -14,7 +14,6 @@ from .serializers import UserSerializer, IngredientSerializer, UserAvatarSeriali
     FavoriteSerializer, CreateRecipeSerializer, RecipeSerializer
 from recipes.models import Ingredient, Recipe
 from users.models import Follow, ShoppingCart, Favorite
-from django.urls import reverse
 
 User = get_user_model()
 
@@ -50,18 +49,28 @@ class UserCustomViewSet(UserViewSet):
             return self.create_avatar(request)
         return self.delete_avatar(request)
 
-    @staticmethod
     def create_avatar(self, request):
+        # Явная проверка на пустой запрос
+        if not request.data or 'avatar' not in request.data:
+            return Response(
+                {"avatar": ["Это поле обязательно."]},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = UserAvatarSerializer(
-            request.user, data=request.data, partial=True
+            request.user,
+            data=request.data,
+            partial=True,
+            context={'request': request}
         )
 
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except serializers.ValidationError as e:
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @staticmethod
     def delete_avatar(self, request):
         user = request.user
         if user.avatar:
@@ -70,12 +79,6 @@ class UserCustomViewSet(UserViewSet):
             user.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(methods=['get'], detail=True, url_path='get-link')
-    def get_link(self, request, pk):
-        get_object_or_404(Recipe, id=pk)
-        short_link = f"http://localhost:8000/s/{pk}"  # Пока хардкод
-        return Response({'short-link': short_link}, status=status.HTTP_200_OK)
 
     # @action(
     #     detail=True,
@@ -120,6 +123,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
     search_fields = ("^name",)
+    pagination_class = None
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -186,6 +190,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             "Рецепт не в корзине",
         )
 
+    @staticmethod
     def create_user_recipe_relation(self, request, pk, serializer_class):
         serializer = serializer_class(
             data={
