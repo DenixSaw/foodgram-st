@@ -141,7 +141,6 @@ dmypy.json
 test.http
 identifier.sqlite
 
-*migrations/
 
 static/
 media/

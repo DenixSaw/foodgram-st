@@ -42,20 +42,6 @@ class User(AbstractUser):
         verbose_name="Аватар",
         upload_to='avatars/',
     )
-    favourites = models.ManyToManyField(
-        Recipe,
-        # on_delete=models.SET_NULL,
-        blank=True,
-        verbose_name="Избранное",
-        related_name='favourites',
-    )
-    cart = models.ManyToManyField(
-        Recipe,
-        # on_delete=models.SET_NULL,
-        blank=True,
-        verbose_name="Корзина",
-        related_name="user_cart",
-    )
 
     class Meta:
         verbose_name = "Пользователь"
@@ -89,3 +75,42 @@ class Follow(models.Model):
 
     def __str__(self):
         return f'{self.user} подписан на {self.following}'
+
+
+class UserRecipeRelation(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name="Рецепт",
+    )
+
+    class Meta:
+        abstract = True
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "recipe"], name="unique_user_recipe_%(class)s"
+            )
+        ]
+        ordering = ("-user",)
+
+    def __str__(self):
+        return f"{self.user} {self.recipe}"
+
+
+class Favorite(UserRecipeRelation):
+    class Meta(UserRecipeRelation.Meta):
+        verbose_name = "Избранное"
+        verbose_name_plural = "Избранное"
+        default_related_name = "favorites"
+
+
+class ShoppingCart(UserRecipeRelation):
+    class Meta(UserRecipeRelation.Meta):
+        verbose_name = "Список покупок"
+        verbose_name_plural = "Списки покупок"
+        default_related_name = "shopping_carts"

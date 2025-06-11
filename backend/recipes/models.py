@@ -2,8 +2,6 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
-# User = get_user_model()
-
 RECIPE_NAME_MAX_LENGTH = 256
 INGREDIENT_NAME_MAX_LENGTH = 128
 MEASUREMENT_UNIT_MAX_LENGTH = 64
@@ -36,6 +34,7 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         blank=False,
         verbose_name="Автор",
+        related_name='recipes'
     )
     name = models.CharField(
         max_length=RECIPE_NAME_MAX_LENGTH,
@@ -57,6 +56,12 @@ class Recipe(models.Model):
         blank=False,
         verbose_name="Время приготовления",
     )
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        through='IngredientRecipe',
+        through_fields=('recipe', 'ingredient'),
+        related_name='recipes'
+    )
 
     class Meta:
         verbose_name = "Рецепт"
@@ -72,6 +77,7 @@ class IngredientRecipe(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         blank=False,
+        related_name='ingredients_in_recipe',
     )
     amount = models.PositiveSmallIntegerField(
         blank=False,
@@ -84,6 +90,7 @@ class IngredientRecipe(models.Model):
         on_delete=models.CASCADE,
         blank=False,
         null=True,
+        related_name='recipe_ingredients',
     )
 
     class Meta:
