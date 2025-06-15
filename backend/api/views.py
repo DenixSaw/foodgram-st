@@ -1,3 +1,4 @@
+import os
 import tempfile
 
 from django.contrib.auth import get_user_model
@@ -311,7 +312,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=True, url_path='get-link')
     def get_link(self, request, pk):
         get_object_or_404(Recipe, id=pk)
-        short_link = f"localhost/s/{pk}"
+        short_link = f"{os.getenv('HOSTNAME', 'localhost')}/s/{pk}"
         return Response({'short-link': short_link}, status=status.HTTP_200_OK)
 
     @action(
