@@ -231,3 +231,41 @@ class ShoppingCartSerializer(
 
     def validate(self, data):
         return super().validate(data, "shopping_carts")
+
+class FollowSerializer(serializers.ModelSerializer):
+    email = serializers.ReadOnlyField(source='following.email')
+    id = serializers.ReadOnlyField(source='following.id')
+    username = serializers.ReadOnlyField(source='following.username')
+    first_name = serializers.ReadOnlyField(source='following.first_name')
+    last_name = serializers.ReadOnlyField(source='following.last_name')
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Follow
+        fields = (
+            'email', 'id', 'username', 'first_name', 'last_name',
+            'is_subscribed', 'recipes', 'recipes_count', 'avatar'
+        )
+
+    def get_is_subscribed(self, obj):
+        return True
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        recipes = obj.following.recipes.all()
+        limit = request.query_params.get('recipes_limit')
+        if limit and limit.isdigit():
+            recipes = recipes[:int(limit)]
+        return RecipeFromFavouritesSerializer(recipes, many=True).data
+
+    def get_recipes_count(self, obj):
+        return obj.following.recipes.count()
+
+    def get_avatar(self, obj):
+        if obj.following.avatar:
+            request = self.context.get('request')
+            return request.build_absolute_uri(obj.following.avatar.url)
+        return None
